@@ -39,9 +39,15 @@ Or install it yourself as:
 ```
 where 'activity_id' is the Garmin activity id and 'format', the format in which you want the result
 available format are
+
 *'json' (__Note__: you don't get the track points with this format)
-*'tcx' 
+
+*'tcx' (default)
+
 *'gpx'
+
+To read the tcx or gpx result, you can use my [gpx reader gem](https://github.com/tranquiliste/gpx_reader "GPX reader") and [tcx reader gem](https://github.com/tranquiliste/tcx_reader "TCX reader")
+
 
 ## Contributing
 
