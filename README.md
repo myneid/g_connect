@@ -18,7 +18,30 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+**Initialize connection**
+```
+  g_connect=GConnect::Connexion.new(login,password)
+```
+
+**get latest activities**
+
+```
+  g_connect.latest_activities(start, limit)
+```
+  where 'start' is the first activity to get (0 being the most recent), 'limit' is the number of activities.
+  Default are 0 and 1 (the most recent activity)
+
+  __Note__: result is a json format, use your preferred parser to read it
+
+**get an activity**
+```
+ g_connect.activity(activity_id, format)
+```
+where 'activity_id' is the Garmin activity id and 'format', the format in which you want the result
+available format are
+*'json' (__Note__: you don't get the track points with this format)
+*'tcx' 
+*'gpx'
 
 ## Contributing
 

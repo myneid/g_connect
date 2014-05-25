@@ -22,7 +22,6 @@
 #++
 module GConnect
   class Connexion
-    attr_accessor :g_connexion
       # Connect to Garmin Connect site with username and password
       # get last activities uploaded
       # get detailed activities either in gpx format or in tcx format
@@ -43,7 +42,7 @@ module GConnect
 
       # params to pass to the login request
       # TODO: check if all the params are really needed
-      params = {
+      PARAMS = {
         :service => "http://connect.garmin.com/post-auth/login",
         :redirectAfterAccountLoginUrl => "http://connect.garmin.com/post-auth/login",
         :redirectAfterAccountCreationUrl => "http://connect.garmin.com/post-auth/login",
@@ -68,7 +67,7 @@ module GConnect
       # return a the connexion object for the user and password 
       def initialize(username, password)
         @g_connexion        = Mechanize.new
-        login_page          = @g_connexion.get(GC_LOGIN_URL,params)
+        login_page          = @g_connexion.get(GC_LOGIN_URL,PARAMS)
         login_form          = login_page.form_with(:id => "login-form")
         login_form.username = username
         login_form.password = password
@@ -79,8 +78,25 @@ module GConnect
         @g_connexion
       end
 
-      def latest_activities(date)
-        activities = self.get(LAST_UPLOADED_ACTIVITIES+"uploadDate>"+date)
+      # returns the latest activities uploaded on garmin based on the date passed
+      # params:
+      #  start: 0 => newest activity, limit => number of activities to get
+      def latest_activities(start=0,limit=1)
+        activities = @g_connexion.get(LAST_UPLOADED_ACTIVITIES, {:start => start, :limit => limit}).body
+      end
+
+      # returns activity based on the id
+      # params:
+      #  activity_id: garmin activity ID
+      #  format: 'json', 'gpx', 'tcx'
+      def activity(activity_id, format='tcx')
+        case format
+        when 'tcx'
+          activity = @g_connexion.get(ACTIVITY_TCX_URL+activity_id).body
+        when 'gpx'
+          activity = @g_connexion.get(ACTIVITY_GPX_URL+activity_id).body
+        when 'json'
+          activity = @g_connexion.get(ACTIVITY_JSON_URL+activity_id).body
       end
   end
 end
