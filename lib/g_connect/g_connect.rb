@@ -77,6 +77,12 @@ module GConnect
 			@g_connexion.head(GC_LOGIN_TICKET, {:ticket => ticket})
 			@g_connexion
 		end
+		
+		##get a page with mechanize
+		def getpage(page)
+			return @g_connexion.get(page)
+		end
+			
 
 		# returns the latest activities uploaded on garmin based on the date passed
 		# params:
