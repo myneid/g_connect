@@ -40,42 +40,48 @@ module GConnect
 		# url to get an activity detail in json format,  (to concatenate with activity number) do not contain the trackpoints
 		ACTIVITY_JSON_URL        = "http://connect.garmin.com/proxy/activity-service-1.1/json/activity/" # activity global information
 
+                # url to get data for vivofit
+                STEP_SUMMARY_JSON_URL = "http://connect.garmin.com/proxy/wellness-service/wellness/dailySummaries"
+
 		# params to pass to the login request
-		# TODO: check if all the params are really needed
-		PARAMS = {
-			:service => "http://connect.garmin.com/post-auth/login",
-			:redirectAfterAccountLoginUrl => "http://connect.garmin.com/post-auth/login",
-			:redirectAfterAccountCreationUrl => "http://connect.garmin.com/post-auth/login",
-			:webhost => "olaxpw-connect00.garmin.com",
-			:clientId => "GarminConnect",
-			:gauthHost => "https://sso.garmin.com/sso",
-			:rememberMeShown => "true",
-			:rememberMeChecked => "false",
-			:consumeServiceTicket => "false",
-			:id => "gauth-widget",
-			:embedWidget => "false",
-			:cssUrl => "https://static.garmincdn.com/com.garmin.connect/ui/src-css/gauth-custom.css",
-			:source => "http://connect.garmin.com/en-US/signin",
-			:createAccountShown => "true",
-			:openCreateAccount => "false",
-			:usernameShown => "true",
-			:displayNameShown => "false",
-			:initialFocus => "true",
-			:locale => "en"
-		}
+                PARAMS = {
+                        :service => "http://connect.garmin.com/post-auth/login",
+        #               :redirectAfterAccountLoginUrl => "http://connect.garmin.com/post-auth/login",
+        #               :redirectAfterAccountCreationUrl => "http://connect.garmin.com/post-auth/login",
+        #               :webhost => "olaxpw-connect00.garmin.com",
+                        :clientId => "GarminConnect",
+        #               :gauthHost => "https://sso.garmin.com/sso",
+        #               :rememberMeShown => "true",
+        #               :rememberMeChecked => "false",
+        #               :consumeServiceTicket => "false",
+        #               :id => "gauth-widget",
+        #               :embedWidget => "false",
+        #               :cssUrl => "https://static.garmincdn.com/com.garmin.connect/ui/src-css/gauth-custom.css",
+        #               :source => "http://connect.garmin.com/en-US/signin",
+        #               :createAccountShown => "true",
+        #               :openCreateAccount => "false",
+        #               :usernameShown => "true",
+        #               :displayNameShown => "false",
+        #               :initialFocus => "true",
+        #               :locale => "en"
+                        :consumeServiceTicket => false
+                }
 		# initialization of the connexion
 		# return a the connexion object for the user and password 
 		def initialize(username, password)
-			@g_connexion        = Mechanize.new
-			login_page          = @g_connexion.get(GC_LOGIN_URL,PARAMS)
-			login_form          = login_page.form_with(:id => "login-form")
-			login_form.username = username
-			login_form.password = password
-			connect = @g_connexion.submit(login_form)
-			# get te ticket
-			ticket =  connect.search("script").text[/ticket=(.*cas)/,1] 
-			@g_connexion.head(GC_LOGIN_TICKET, {:ticket => ticket})
-			@g_connexion
+                        @g_connexion        = Mechanize.new
+                        login_page          = @g_connexion.get(GC_LOGIN_URL,PARAMS)
+                        login_form          = login_page.form_with(:id => "login-form")
+                        login_form.username = username
+                        login_form.password = password
+                        connect = @g_connexion.submit(login_form)
+                        # get te ticket
+                        ticket =  connect.search("script").text[/ticket=(.*cas)/,1]
+                        @g_connexion.agent.redirect_ok = false
+                        head_resp = @g_connexion.head(GC_LOGIN_TICKET, {:ticket => ticket})
+                        location = head_resp.response["location"]
+                        @g_connexion.get(location)
+                        @g_connexion
 		end
 		
 		##get a page with mechanize
@@ -90,6 +96,10 @@ module GConnect
 		def latest_activities(start=0,limit=1)
 			activities = @g_connexion.get(LAST_UPLOADED_ACTIVITIES, {:start => start, :limit => limit}).body
 		end
+
+                def step_summary(start=1,limit=1)
+                        summary = @g_connexion.get(STEP_SUMMARY_JSON_URL, {:start => start, :limit => limit}).body
+                end
 
 		# returns activity based on the id
 		# params:

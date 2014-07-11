@@ -48,6 +48,11 @@ available format are
 
 To read the tcx or gpx result, you can use my [gpx reader gem](https://github.com/tranquiliste/gpx_reader "GPX reader") and [tcx reader gem](https://github.com/tranquiliste/tcx_reader "TCX reader")
 
+**get step summary for vivofit users**
+```
+ g_connect.step_summary(start,limit)
+```
+
 
 ## Contributing
 
